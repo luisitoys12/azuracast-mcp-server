@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: azuracast-mcp-server
+    runtime: node
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: AZURACAST_URL
+        sync: false
+      - key: AZURACAST_API_KEY
+        sync: false
+      - key: MCP_API_TOKEN
+        generateValue: true
+      - key: NODE_ENV
+        value: production

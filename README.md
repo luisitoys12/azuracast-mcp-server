@@ -1,6 +1,6 @@
 # azuracast-mcp-server
 
-> MCP Server para [AzuraCast](https://www.azuracast.com/) — controla y monitorea tus estaciones de radio desde Claude, n8n, Cursor y cualquier cliente compatible con Model Context Protocol.
+> MCP Server para [AzuraCast](https://www.azuracast.com/) — controla y monitorea tus estaciones de radio desde Claude, n8n, Cursor y cualquier cliente MCP.
 
 ## Herramientas disponibles
 
@@ -15,7 +15,44 @@
 | `restart_station` | Reinicia una estación |
 | `skip_song` | Salta la canción actual (requiere AutoDJ activo) |
 
-## Instalación
+---
+
+## 🚀 Deploy en Render (recomendado)
+
+El repo incluye un `render.yaml` listo. Sólo necesitas:
+
+1. Ve a [dashboard.render.com](https://dashboard.render.com) → **New** → **Blueprint**.
+2. Conecta este repositorio: `luisitoys12/azuracast-mcp-server`.
+3. Render detecta el `render.yaml` automáticamente.
+4. En la pestaña **Environment**, agrega:
+   - `AZURACAST_URL` → `https://radio.kusmedios.lat`
+   - `AZURACAST_API_KEY` → tu API key
+   - `MCP_API_TOKEN` → se genera automáticamente (cópialo para tu cliente MCP)
+5. Da clic en **Apply** y espera el deploy.
+
+Tu endpoint queda en:
+```
+https://azuracast-mcp-server.onrender.com/mcp
+```
+
+### Configurar en Claude Desktop (modo remoto)
+
+```json
+{
+  "mcpServers": {
+    "azuracast": {
+      "url": "https://azuracast-mcp-server.onrender.com/mcp",
+      "headers": {
+        "Authorization": "Bearer TU_MCP_API_TOKEN"
+      }
+    }
+  }
+}
+```
+
+---
+
+## 💻 Instalación local (modo stdio)
 
 ```bash
 git clone https://github.com/luisitoys12/azuracast-mcp-server
@@ -26,18 +63,7 @@ cp .env.example .env
 npm run build
 ```
 
-## Variables de entorno
-
-```env
-AZURACASTURL=https://radio.kusmedios.lat
-AZURACASTAPIKEY=TU_API_KEY_AQUI
-```
-
-> ⚠️ **Nunca subas tu `.env` a GitHub.** Ya está en `.gitignore`.
-
-## Uso con Claude Desktop
-
-Agrega en tu `claude_desktop_config.json`:
+### Config Claude Desktop (modo local/stdio)
 
 ```json
 {
@@ -54,12 +80,29 @@ Agrega en tu `claude_desktop_config.json`:
 }
 ```
 
+---
+
+## 🧩 Variables de entorno
+
+| Variable | Requerida | Descripción |
+|---|---|---|
+| `AZURACAST_URL` | Sí | URL base de tu AzuraCast (sin trailing slash) |
+| `AZURACAST_API_KEY` | Sí | API Key de AzuraCast |
+| `MCP_API_TOKEN` | No | Token Bearer para proteger el endpoint HTTP |
+| `PORT` | No | Puerto HTTP (Render lo inyecta automáticamente) |
+
+> ⚠️ **Nunca subas tu `.env` a GitHub.** Ya está en `.gitignore`.
+
+---
+
 ## Uso con n8n
 
-1. Agrega un nodo **MCP Client** en tu flujo.
-2. Transporte: `stdio`.
-3. Comando: `node /ruta/dist/index.js`
-4. Variables de entorno: `AZURACAST_URL` y `AZURACAST_API_KEY`.
+1. Agrega un nodo **MCP Client**.
+2. Tipo de conexión: `Streamable HTTP`.
+3. URL: `https://azuracast-mcp-server.onrender.com/mcp`
+4. Header: `Authorization: Bearer TU_MCP_API_TOKEN`
+
+---
 
 ## Ejemplos de uso desde Claude
 
